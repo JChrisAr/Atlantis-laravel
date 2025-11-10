@@ -19,12 +19,6 @@ use App\Http\Controllers\ContactController;
 // Página principal: listado de propiedades
 Route::get('/', [PropertyController::class, 'index'])->name('home');
 
-// Propiedades públicas (ver listado y detalle)
-Route::resource('properties', PropertyController::class)->only(['index', 'show']);
-
-// Contactos / Leads (formulario de contacto)
-Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
-
 // Rutas protegidas por autenticación
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
@@ -40,6 +34,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Propiedades públicas (ver listado y detalle)
+Route::resource('properties', PropertyController::class)->only(['index', 'show']);
+
+// Contactos / Leads (formulario de contacto)
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
 // Incluye las rutas de autenticación generadas por Breeze
 require __DIR__ . '/auth.php';
