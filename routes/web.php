@@ -1,20 +1,45 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\ContactController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+/*
+|--------------------------------------------------------------------------
+| Web Routes - Atlantis Project
+|--------------------------------------------------------------------------
+| Aquí definimos todas las rutas web de la aplicación, incluyendo:
+| - Rutas públicas (inicio, propiedades, contactos)
+| - Rutas protegidas (crear/editar propiedades, perfil)
+| - Autenticación (Laravel Breeze)
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Página principal: listado de propiedades
+Route::get('/', [PropertyController::class, 'index'])->name('home');
 
-Route::middleware('auth')->group(function () {
+// Propiedades públicas (ver listado y detalle)
+Route::resource('properties', PropertyController::class)->only(['index', 'show']);
+
+// Contactos / Leads (formulario de contacto)
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+
+// Rutas protegidas por autenticación
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Dashboard
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    // CRUD de propiedades (solo usuarios autenticados)
+    Route::resource('properties', PropertyController::class)->except(['index', 'show']);
+
+    // Perfil de usuario (Laravel Breeze)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+// Incluye las rutas de autenticación generadas por Breeze
+require __DIR__ . '/auth.php';
